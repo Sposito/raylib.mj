@@ -1,0 +1,60 @@
+name: build-test-game
+on:
+  push:
+    branches:
+      - main
+jobs:
+  write-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: 1. 📦 Update Ubuntu and Get Packages
+        run: |
+          apt-get update \
+          && DEBIAN_FRONTEND=noninteractive TZ=$DEFAULT_TZ apt-get install -y \
+          tzdata \
+          vim \
+          nano \
+          sudo \
+          curl \
+          wget \
+          git \
+          make \
+          cmake \
+          patchelf && \
+          rm -rf /var/lib/apt/lists/*
+
+      - name: 2. 🥚 Install Miniconda
+        run: |
+          curl -fsSL https://repo.anaconda.com/miniconda/$( wget -O - https://repo.anaconda.com/miniconda/ 2>/dev/null | grep -o 'Miniconda3-py38_[^"]*-Linux-x86_64.sh' | head -n 1) > /tmp/miniconda.sh \
+          && chmod +x /tmp/miniconda.sh \
+          && /tmp/miniconda.sh -b -p /opt/conda
+
+      - name: 3. 🐍 Init Conda
+        env:
+          PATH: /opt/conda/bin:$PATH
+        run: conda init
+
+      - name: 4. 🔥 Get and Install Mojo
+        run: |
+          curl -s https://get.modular.com | sh - \
+          && modular install mojo
+
+      - name: 5. 📦 Download and Extract Raylib
+        env:
+          RAYLIB_TAR: raylib-5.0_linux_amd64.tar.gz
+          RAYLIB_URI: https://github.com/raysan5/raylib/releases/download/5.0/$RAYLIB_TAR
+        run: |
+          wget $RAYLIB_URI -O /tmp/$RAYLIB_TAR && \
+          tar -xzvf /tmp/$RAYLIB_TAR -C /tmp && \
+          rm /tmp/$RAYLIB_TAR
+
+      - name: 6. 🔧 Set Environment Variables
+        run: |
+          echo 'export PATH=/opt/conda/bin:$PATH' >> $GITHUB_ENV
+          echo 'export MODULAR_HOME=/root/.modular' >> $GITHUB_ENV
+          echo 'export PATH=$PATH:$MODULAR_HOME/pkg/packages.modular.com_mojo/bin' >> $GITHUB_ENV
