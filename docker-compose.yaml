@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/src
+    environment:
+      - DEFAULT_TZ=America/Sao_Paulo
+    tty: true
+    stdin_open: true
+    command: tail -f /dev/null

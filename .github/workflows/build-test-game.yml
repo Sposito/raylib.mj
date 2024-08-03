@@ -2,9 +2,9 @@ name: build-test-game
 on:
   push:
     branches:
-      - main
+      - main_wip
 jobs:
-  write-readme:
+  build-tst-game:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,9 +35,7 @@ jobs:
           && /tmp/miniconda.sh -b -p /opt/conda
 
       - name: 3. 🐍 Init Conda
-        env:
-          PATH: /opt/conda/bin:$PATH
-        run: conda init
+        run:  PATH="/opt/conda/bin:$PATH" && conda init
 
       - name: 4. 🔥 Get and Install Mojo
         run: |
@@ -45,10 +43,9 @@ jobs:
           && modular install mojo
 
       - name: 5. 📦 Download and Extract Raylib
-        env:
-          RAYLIB_TAR: raylib-5.0_linux_amd64.tar.gz
-          RAYLIB_URI: https://github.com/raysan5/raylib/releases/download/5.0/$RAYLIB_TAR
         run: |
+          RAYLIB_TAR=raylib-5.0_linux_amd64.tar.gz &&\
+          RAYLIB_URI=https://github.com/raysan5/raylib/releases/download/5.0/$RAYLIB_TAR && \
           wget $RAYLIB_URI -O /tmp/$RAYLIB_TAR && \
           tar -xzvf /tmp/$RAYLIB_TAR -C /tmp && \
           rm /tmp/$RAYLIB_TAR
