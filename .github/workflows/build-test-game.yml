@@ -47,4 +47,4 @@ jobs:
       - name: 6. 🏗️ Build
         run: |
           ls
-clear
+
