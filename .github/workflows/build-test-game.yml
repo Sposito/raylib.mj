@@ -7,11 +7,6 @@ jobs:
   build-tst-game:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
-
       - name: 1. 📦 Update Ubuntu and Get Packages
         run: |
           apt-get update \
@@ -28,21 +23,12 @@ jobs:
           patchelf && \
           rm -rf /var/lib/apt/lists/*
 
-      - name: 2. 🥚 Install Miniconda
-        run: |
-          curl -fsSL https://repo.anaconda.com/miniconda/$( wget -O - https://repo.anaconda.com/miniconda/ 2>/dev/null | grep -o 'Miniconda3-py38_[^"]*-Linux-x86_64.sh' | head -n 1) > /tmp/miniconda.sh \
-          && chmod +x /tmp/miniconda.sh \
-          && /tmp/miniconda.sh -b -p /opt/conda
-
-      - name: 3. 🐍 Init Conda
-        run:  PATH="/opt/conda/bin:$PATH" && conda init
-
-      - name: 4. 🔥 Get and Install Mojo
+      - name: 2. 🔥 Get and Install Mojo
         run: |
           curl -s https://get.modular.com | sh - \
           && modular install mojo
 
-      - name: 5. 📦 Download and Extract Raylib
+      - name: 3. 📦 Download and Extract Raylib
         run: |
           RAYLIB_TAR=raylib-5.0_linux_amd64.tar.gz &&\
           RAYLIB_URI=https://github.com/raysan5/raylib/releases/download/5.0/$RAYLIB_TAR && \
@@ -50,8 +36,15 @@ jobs:
           tar -xzvf /tmp/$RAYLIB_TAR -C /tmp && \
           rm /tmp/$RAYLIB_TAR
 
-      - name: 6. 🔧 Set Environment Variables
+      - name: 4. 🔧 Set Environment Variables
         run: |
-          echo 'export PATH=/opt/conda/bin:$PATH' >> $GITHUB_ENV
           echo 'export MODULAR_HOME=/root/.modular' >> $GITHUB_ENV
           echo 'export PATH=$PATH:$MODULAR_HOME/pkg/packages.modular.com_mojo/bin' >> $GITHUB_ENV
+      - name: 5. 🌳 Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+      - name: 6. 🏗️ Build
+        run: |
+          ls
+clear
